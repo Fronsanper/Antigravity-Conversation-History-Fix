@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Antigravity History Fix</title>
+<style>
+:root{font-family:Inter,Segoe UI,system-ui,sans-serif;color:#eef1ff;background:#090b14}
+*{box-sizing:border-box}body{margin:0;min-height:100vh;background:
+radial-gradient(circle at 15% 10%,#1d2b63 0,transparent 32%),
+radial-gradient(circle at 85% 75%,#3b1758 0,transparent 30%),#090b14}
+.app{width:min(1000px,calc(100% - 32px));margin:24px auto;background:#101424ee;border:1px solid #2d3555;border-radius:24px;box-shadow:0 24px 70px #0008;overflow:hidden}
+.top{padding:24px 28px;border-bottom:1px solid #252d48;display:flex;justify-content:space-between;gap:16px;align-items:center}
+.brand{font-weight:800;letter-spacing:.2px}.tag{font-size:12px;padding:7px 10px;border:1px solid #37415f;border-radius:999px;color:#aeb8de}
+.main{padding:34px 28px 28px;min-height:620px}.progress{display:flex;gap:7px;margin-bottom:26px}.dot{height:6px;flex:1;border-radius:9px;background:#252d48}.dot.on{background:linear-gradient(90deg,#7c5cff,#30d7ff)}
+h1{font-size:34px;margin:0 0 10px}h2{font-size:23px;margin:0 0 10px}p{color:#b6bfdc;line-height:1.65}.card{background:#151b2e;border:1px solid #2b3454;padding:20px;border-radius:18px;margin:14px 0}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.option{cursor:pointer;display:block}.option input{display:none}.option .card{height:100%;transition:.18s}.option input:checked+.card{border-color:#6f61ff;box-shadow:0 0 0 1px #6f61ff33,0 12px 30px #0004;transform:translateY(-1px)}
+.small{font-size:13px;color:#8f99ba}.actions{display:flex;justify-content:space-between;gap:10px;margin-top:28px}.right{display:flex;gap:10px}
+button{border:0;border-radius:13px;padding:13px 19px;font-weight:700;cursor:pointer;color:#fff;background:#262e48}button.primary{background:linear-gradient(135deg,#7c5cff,#3fb7ff)}button.danger{background:#52243a}.ghost{background:transparent;border:1px solid #36415f}
+input[type=text]{width:100%;padding:13px;border-radius:12px;border:1px solid #36415f;background:#0d1220;color:#fff}.check{display:flex;gap:10px;align-items:flex-start}.check input{margin-top:5px}
+pre{white-space:pre-wrap;background:#0a0f1a;padding:14px;border-radius:12px;border:1px solid #26304b;color:#cbd3ef;max-height:220px;overflow:auto}
+.links a{color:#80c8ff;text-decoration:none;margin-right:14px}.links a:hover{text-decoration:underline}
+.hidden{display:none}.success{font-size:64px}.warning{padding:12px;border-radius:12px;background:#3a2d16;color:#f8da99;border:1px solid #665127}.ok{padding:12px;border-radius:12px;background:#12352a;color:#adf0d3;border:1px solid #2c6d58}
+@media(max-width:760px){.grid{grid-template-columns:1fr}h1{font-size:28px}.main{padding:24px 18px}.top{padding:18px}}
+</style>
+</head>
+<body>
+<div class="app">
+<header class="top"><div class="brand">Antigravity History Fix <span class="small">Conversation History Fix</span></div><div class="tag">v1.0.0 • By Fronsanper</div></header>
+<main class="main">
+<div class="progress" id="progress"></div>
+<section id="screen"></section>
+<div class="actions"><button id="back" class="ghost"></button><div class="right"><button id="cancel" class="danger"></button><button id="next" class="primary"></button></div></div>
+</main>
+</div>
+<script>
+const state={lang:"en-US",step:0,fixes:new Set(["auto-run","link-approval"]),agPath:"",terms:false};
+let t={};
+const steps=["lang","welcome","how","terms","options","apply","finish"];
+async function loadLang(){
+  const r=await fetch("/locales/"+state.lang+".json"); t=await r.json(); render();
+}
+function el(s){return document.querySelector(s)}
+function card(title,desc,key){return `<label class="option"><input type="checkbox" data-fix="${key}" ${state.fixes.has(key)?"checked":""}><div class="card"><h2>${title}</h2><p>${desc}</p></div></label>`}
+async function info(){return (await fetch("/api/info")).json()}
+async function render(){
+  el("#progress").innerHTML=steps.map((_,i)=>`<div class="dot ${i<=state.step?"on":""}"></div>`).join("");
+  el("#back").textContent=t.back; el("#cancel").textContent=t.cancel;
+  el("#next").textContent=state.step===steps.length-1?t.close:t.continue;
+  const s=steps[state.step]; let html="";
+  if(s==="lang") html=`<h1>${t.select_language}</h1><p>${t.subtitle}</p><div class="grid">
+    <label class="option"><input type="radio" name="lang" value="pt-BR" ${state.lang==="pt-BR"?"checked":""}><div class="card"><h2>🇧🇷 Português (Brasil)</h2><p>Interface e orientações em português.</p></div></label>
+    <label class="option"><input type="radio" name="lang" value="en-US" ${state.lang==="en-US"?"checked":""}><div class="card"><h2>🇺🇸 English (US)</h2><p>Interface and guidance in English.</p></div></label></div>`;
+  if(s==="welcome"){let i=await info(); state.agPath=i.detectedPaths[0]||""; html=`<h1>${t.welcome}</h1><p>${t.welcome_text}</p><div class="${state.agPath?"ok":"warning"}">${state.agPath? t.detected+": "+state.agPath : t.not_detected}</div><div class="card"><p class="small">${t.require_node}</p><p class="small">${t.windows}</p></div><div class="card"><h2>${t.uninstall}</h2><p>${t.uninstall_text}</p><button class="ghost" onclick="revertNow()">${t.uninstall_now}</button></div>`}
+  if(s==="how") html=`<h1>${t.how}</h1><p>${t.how_text}</p><div class="grid">
+    ${card(t.auto_run,t.auto_run_desc,"auto-run")}${card(t.link_approval,t.link_approval_desc,"link-approval")}</div>
+    <div class="card"><h2>${t.path}</h2><p class="small">${t.custom_path}</p><input id="customPath" type="text" value="${state.agPath}" placeholder="C:\\Program Files\\Antigravity"><div class="right" style="margin-top:12px"><button onclick="selectDetected()">${t.select}</button><button onclick="refreshInfo()">${t.refresh}</button></div></div>`;
+  if(s==="terms") html=`<h1>${t.terms}</h1><div class="card"><p>${t.terms_text}</p></div><label class="check"><input id="terms" type="checkbox" ${state.terms?"checked":""}><span>${t.agree}</span></label>`;
+  if(s==="options") html=`<h1>${t.options}</h1><p>${t.select_fixes}</p><div class="grid">${card(t.auto_run,t.auto_run_desc,"auto-run")}${card(t.link_approval,t.link_approval_desc,"link-approval")}</div>
+    <div class="right" style="margin-top:14px"><button onclick="selectAll()">${t.select_all}</button><button onclick="clearAll()">${t.clear}</button></div>`;
+  if(s==="apply") html=`<h1>${t.apply}</h1><p>${t.restart}</p><div id="log" class="card">${t.running}...</div>`;
+  if(s==="finish") html=`<div class="success">✓</div><h1>${t.thanks}</h1><p>${t.thanks_text}</p><div class="card"><p class="links">Follow me: <a href="${window.__LINKS?.Discord||'#'}" target="_blank">${t.discord}</a><a href="${window.__LINKS?.Telegram||'#'}" target="_blank">${t.telegram}</a><a href="${window.__LINKS?.YouTube||'#'}" target="_blank">${t.youtube}</a><a href="${window.__LINKS?.GitHub||'#'}" target="_blank">${t.github}</a></p><strong>${t.by}</strong></div>`;
+  el("#screen").innerHTML=html;
+  document.querySelectorAll('input[name="lang"]').forEach(x=>x.onchange=async()=>{state.lang=x.value;await loadLang()});
+  document.querySelectorAll("[data-fix]").forEach(x=>x.onchange=()=>{x.checked?state.fixes.add(x.dataset.fix):state.fixes.delete(x.dataset.fix)});
+  const cp=el("#customPath"); if(cp) cp.oninput=()=>state.agPath=cp.value;
+  const terms=el("#terms"); if(terms) terms.onchange=()=>state.terms=terms.checked;
+  el("#back").style.visibility=state.step===0?"hidden":"visible";
+  if(state.step===steps.length-1){el("#cancel").style.display="none";el("#next").textContent=t.close}
+}
+async function go(dir){
+ const step=steps[state.step];
+ if(step==="terms" && dir>0 && !state.terms){alert(t.agree);return}
+ if(step==="options" && dir>0 && state.fixes.size===0){alert(t.select_fixes);return}
+ if(state.step===steps.length-2 && dir>0){state.step++;await render();return}
+ state.step=Math.max(0,Math.min(steps.length-1,state.step+dir));await render();
+}
+async function applyNow(){
+ el("#next").disabled=true; el("#cancel").disabled=true;
+ const r=await fetch("/api/apply",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({fixes:[...state.fixes],customPath:state.agPath})});
+ const d=await r.json();
+ el("#log").innerHTML=d.ok?`<div class="ok">${t.done}</div><pre>${d.results.map(x=>`${x.fix}: exit ${x.code}\n${x.out||x.err||""}`).join("\n")||t.done}</pre>`:`<div class="warning">${t.error}</div><pre>${d.error||""}</pre>`;
+ el("#cancel").disabled=false; setTimeout(()=>{state.step=6;render()},900);
+}
+async function revertNow(){
+ const r=await fetch("/api/revert",{method:"POST"}); const d=await r.json(); alert(d.ok?t.done:(d.error||t.error));
+}
+function selectAll(){state.fixes=new Set(["auto-run","link-approval"]);render()}
+function clearAll(){state.fixes.clear();render()}
+async function refreshInfo(){const i=await info();state.agPath=i.detectedPaths[0]||state.agPath;render()}
+async function selectDetected(){const i=await info();if(i.detectedPaths[0]){state.agPath=i.detectedPaths[0];render()}else{alert(t.not_detected)}}
+el("#back").onclick=()=>go(-1);
+el("#cancel").onclick=()=>{if(confirm(t.cancel_confirm)) window.close()};
+el("#next").onclick=()=>state.step===4?go(1):state.step===5?applyNow():state.step===6?window.close():go(1);
+(async()=>{const i=await info();window.__LINKS=i.links;await loadLang()})();
+</script>
+</body>
+</html>

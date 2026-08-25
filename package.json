@@ -1,0 +1,95 @@
+{
+  "name": "antigravity-history-fix",
+  "displayName": "Antigravity History Fix",
+  "description": "A guided community toolkit for applying and reverting Antigravity compatibility fixes.",
+  "version": "1.0.0",
+  "publisher": "Fronsanper",
+  "icon": "static/AM-background.png",
+  "galleryBanner": {
+    "color": "#101424",
+    "theme": "dark"
+  },
+  "markdown": "github",
+  "badges": [
+    {
+      "url": "https://img.shields.io/badge/License-AGPL--3.0-blue.svg",
+      "href": "https://github.com/Fronsanper/Antigravity-History-Fix/blob/main/LICENSE",
+      "description": "License: AGPL-3.0"
+    },
+    {
+      "url": "https://img.shields.io/badge/Version-v1.0.0-informational.svg",
+      "href": "https://github.com/Fronsanper/Antigravity-History-Fix/releases",
+      "description": "Version v1.0.0"
+    }
+  ],
+  "engines": {
+    "vscode": "^1.85.0",
+    "node": ">=16.0.0"
+  },
+  "antigravityVersions": ">=1.107.0",
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [
+    "onStartupFinished"
+  ],
+  "main": "./dist/extension.js",
+  "bin": {
+    "antigravity-history-fix": "cli.js"
+  },
+  "contributes": {
+    "commands": [
+      {
+        "command": "better-antigravity.status",
+        "title": "Antigravity History Fix: Show Status"
+      },
+      {
+        "command": "better-antigravity.revertAutoRun",
+        "title": "Antigravity History Fix: Revert Auto-Run Fix"
+      }
+    ]
+  },
+  "scripts": {
+    "build": "node build.mjs",
+    "watch": "node build.mjs --watch",
+    "prepackage": "node -e \"require('fs').mkdirSync('out',{recursive:true})\"",
+    "package": "npm run prepackage && npx @vscode/vsce package --no-dependencies --out out/antigravity-history-fix.vsix",
+    "publish:ovsx": "node publish-ovsx.mjs",
+    "fix:auto-run": "node fixes/auto-run-fix/patch.js",
+    "fix:auto-run:check": "node fixes/auto-run-fix/patch.js --check",
+    "fix:auto-run:revert": "node fixes/auto-run-fix/patch.js --revert",
+    "wizard": "node wizard/server.mjs",
+    "fix:link-approval": "node fixes/link-approval-fix/patch.js",
+    "fix:link-approval:check": "node fixes/link-approval-fix/patch.js --check",
+    "fix:link-approval:revert": "node fixes/link-approval-fix/patch.js --revert"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Fronsanper/Antigravity-History-Fix"
+  },
+  "homepage": "https://github.com/Fronsanper/Antigravity-History-Fix",
+  "bugs": {
+    "url": "https://github.com/Fronsanper/Antigravity-History-Fix/issues"
+  },
+  "author": "Fronsanper",
+  "license": "AGPL-3.0-or-later",
+  "keywords": [
+    "antigravity",
+    "conversation history",
+    "fix",
+    "windows",
+    "linux",
+    "wizard",
+    "community",
+    "fronsanper"
+  ],
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "@types/vscode": "^1.85.0",
+    "esbuild": "^0.20.0"
+  },
+  "dependencies": {
+    "antigravity-sdk": "^1.7.0",
+    "sql.js": "^1.14.0"
+  }
+}
